@@ -16,10 +16,12 @@
             stroke: blue;
             stroke-width: 2px;
         }
-        .tick text{
+
+        .tick text {
             font-size: 12px;
         }
-        .tick line{
+
+        .tick line {
             opacity: .2;
         }
     </style>
@@ -38,7 +40,7 @@
     //h5自定义属性dataset，可获得该元素中所有的data-xxx属性；-> {xxx:xxx}，可以直接通过调用axis.dataset.xxx（xxx为data-后面的值）来获取值；也可以直接通过dataset来设置标签的属性；
     var axis = {  //定义坐标轴
         type: "axis",
-        dataset: {
+        dataset: {  // 当 同时满足 margin的四个值相等 + width等于height值的时候，坐标才会是正方形；
             maxX: 50,// x轴最大值；
             maxY: 50,
             margin: {
@@ -88,12 +90,12 @@
         dataset: [
             {x: 4, y: 16},
             {x: 4.5, y: 16.9},
-            {x: 5,y: 21},
-            {x: 6,y: 18},
-            {x: 7,y: 23},
-            {x: 8,y: 24},
-            {x: 9,y: 28},
-            {x: 10,y: 35},
+            {x: 5, y: 21},
+            {x: 6, y: 18},
+            {x: 7, y: 23},
+            {x: 8, y: 24},
+            {x: 9, y: 28},
+            {x: 10, y: 35},
             {x: 11, y: 30}
         ]
     };
@@ -107,7 +109,7 @@
                 .range([0, width]);// x轴的范围，包括多少个刻度和坐标轴的长度； -> scale：测量，domain：规定了坐标轴上值的范围，range：规定了坐标轴两端端点的位置
         var yScale = d3.scale.linear()
                 .domain([0, axisInfo.maxY])
-                .range([height,0]);
+                .range([height, 0]);
         var xAxis = d3.svg.axis() // x轴相关属性设置；
                 .scale(xScale)
                 .orient("bottom")// orient：坐标轴标注的文字的位置，
@@ -132,59 +134,59 @@
         svg.append("g") //把y坐标轴加进svg容器；
                 .attr("class", "y axis")
                 .call(yAxis);
-        this.drawLine=function (lines) {
-         if (lineClass.indexOf(i) == -1) {
-         i = 0;
-         lineClass = "a" + i;
-         } else if (lineClass.substring(0, 1) != 0) {
-         lineClass = 'a' + (i + 1);
-         }
-         var line = d3.svg.line()  //生成"线条函数"，可以直接传给path的d属性决定线条的方向；
-         .x(function (d) {//svg第一条线的起点的横坐标；
-         return xScale(d.x);
-         })
-         .y(function (d) { //纵坐标
-         return yScale(d.y);
-         });
-         //            console.log(line);
-         svg.append("path") // 画折线
-         .data([lines.dataset])//通过lines.dataset数组中的坐标内容画；
-         .attr("class","line "+lineClass)
-         .attr("d",line); // path的d属性决定了折线的"路径"；
-         return lineClass;
-         };
+        this.drawLine = function (lines) {
+            if (lineClass.indexOf(i) == -1) { // 给当前折线命名，如果还没有画过，就给它命名a0；
+                i = 0;
+                lineClass = "a" + i;
+            } else { // 如果画过了，名称就依次递增；
+                lineClass = 'a' + (i + 1);
+            }
+            var line = d3.svg.line()  //生成"线条函数"，可以直接传给path的d属性决定线条的方向；
+                    .x(function (d) {//svg第一条线的起点的横坐标；
+                        return xScale(d.x);
+                    })
+                    .y(function (d) { //纵坐标
+                        return yScale(d.y);
+                    });
+            //            console.log(line);
+            svg.append("path") // 画折线
+                    .data([lines.dataset])//通过lines.dataset数组中的坐标内容画；
+                    .attr("class", "line " + lineClass)
+                    .attr("d", line); // path的d属性决定了折线的"路径"；
+            return lineClass; // 将当前折线的名字返回，便于删除；
+        };
         this.drawPoint = function (point) {
-            if (lineClass.indexOf(j)==-1){
+            if (lineClass.indexOf(j) == -1) {
                 j = 0;
-                pointClass = "b"+j;
-            }else {
-                pointClass = "b"+(j+1);
+                pointClass = "b" + j;
+            } else {
+                pointClass = "b" + (j + 1);
             }
             svg.selectAll("circle")
                     .data(point.dataset)
                     .enter()//进入，参加
                     .append("circle")//将小圆点添加到svg中；
-                    .attr("cx",function (d) { //当前点的横坐标；
+                    .attr("cx", function (d) { //当前点的横坐标；
                         return xScale(d.x);
                     })
-                    .attr("cy",function (d) { //纵坐标
+                    .attr("cy", function (d) { //纵坐标
                         return yScale(d.y);
                     })
                     .attr("r", function () { //当前点的半径；
                         return 5;
                     })
-                    .attr("class",pointClass);
-                    return pointClass;
+                    .attr("class", pointClass);
+            return pointClass;
         };
         this.removeBrokenLine = function (brokenLine) {
 //            console.log(brokenLine);
-            var removeClass = "."+brokenLine;
+            var removeClass = "." + brokenLine;
             svg.selectAll(removeClass).remove();
         };
     }
     var drawBrokenLine = new DrawBrokenLine(axis);
-    var a=drawBrokenLine.drawLine(lines1);//折线图；
-    var b=drawBrokenLine.drawLine(lines2);//折线图；b就是drawLine方法执行返回的类名，当删除折线的时候，直接通过类名来删除这条线；
-    var c=drawBrokenLine.drawPoint(point);//散点图；
+    var a = drawBrokenLine.drawLine(lines1);//折线图；
+    var b = drawBrokenLine.drawLine(lines2);//折线图；b就是drawLine方法执行返回的类名，当删除折线的时候，直接通过类名来删除这条线；
+    var c = drawBrokenLine.drawPoint(point);//散点图；
     drawBrokenLine.removeBrokenLine(b); // 移除b这条线；
 </script>
